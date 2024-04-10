@@ -1,6 +1,6 @@
 crop_size = (
-    64,
-    64,
+    128,
+    128,
 )
 data_preprocessor = dict(
     bgr_to_rgb=True,
@@ -12,8 +12,8 @@ data_preprocessor = dict(
     pad_val=0,
     seg_pad_val=255,
     size=(
-        64,
-        64,
+        128,
+        128,
     ),
     std=[
         58.395,
@@ -21,8 +21,8 @@ data_preprocessor = dict(
         57.375,
     ],
     type='SegDataPreProcessor')
-data_root = 'data/DRIVE'
-dataset_type = 'DRIVEDataset'
+data_root = 'data/CHASE_DB1'
+dataset_type = 'ChaseDB1Dataset'
 default_hooks = dict(
     checkpoint=dict(by_epoch=False, interval=4000, type='CheckpointHook'),
     logger=dict(interval=50, log_metric_by_epoch=False, type='LoggerHook'),
@@ -44,8 +44,8 @@ img_ratios = [
     1.75,
 ]
 img_scale = (
-    584,
-    565,
+    960,
+    999,
 )
 launcher = 'none'
 load_from = None
@@ -125,8 +125,8 @@ model = dict(
         pad_val=0,
         seg_pad_val=255,
         size=(
-            64,
-            64,
+            128,
+            128,
         ),
         std=[
             58.395,
@@ -146,18 +146,21 @@ model = dict(
         dropout_ratio=0.1,
         in_channels=64,
         in_index=4,
-        loss_decode=dict(
-            loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=False),
+        loss_decode=[
+            dict(
+                loss_name='loss_ce', loss_weight=1.0, type='CrossEntropyLoss'),
+            dict(loss_name='loss_dice', loss_weight=3.0, type='DiceLoss'),
+        ],
         norm_cfg=dict(requires_grad=True, type='SyncBN'),
         num_classes=2,
         type='ASPPHead'),
     pretrained=None,
     test_cfg=dict(crop_size=(
-        64,
-        64,
+        128,
+        128,
     ), mode='slide', stride=(
-        42,
-        42,
+        85,
+        85,
     )),
     train_cfg=dict(),
     type='EncoderDecoder')
@@ -184,17 +187,17 @@ test_dataloader = dict(
         data_prefix=dict(
             img_path='images/validation',
             seg_map_path='annotations/validation'),
-        data_root='data/DRIVE',
+        data_root='data/CHASE_DB1',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
-                584,
-                565,
+                960,
+                999,
             ), type='Resize'),
             dict(type='LoadAnnotations'),
             dict(type='PackSegInputs'),
         ],
-        type='DRIVEDataset'),
+        type='ChaseDB1Dataset'),
     num_workers=4,
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
@@ -205,8 +208,8 @@ test_evaluator = dict(
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(keep_ratio=True, scale=(
-        584,
-        565,
+        960,
+        999,
     ), type='Resize'),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs'),
@@ -219,7 +222,7 @@ train_dataloader = dict(
             data_prefix=dict(
                 img_path='images/training',
                 seg_map_path='annotations/training'),
-            data_root='data/DRIVE',
+            data_root='data/CHASE_DB1',
             pipeline=[
                 dict(type='LoadImageFromFile'),
                 dict(type='LoadAnnotations'),
@@ -230,22 +233,22 @@ train_dataloader = dict(
                         2.0,
                     ),
                     scale=(
-                        584,
-                        565,
+                        960,
+                        999,
                     ),
                     type='RandomResize'),
                 dict(
                     cat_max_ratio=0.75,
                     crop_size=(
-                        64,
-                        64,
+                        128,
+                        128,
                     ),
                     type='RandomCrop'),
                 dict(prob=0.5, type='RandomFlip'),
                 dict(type='PhotoMetricDistortion'),
                 dict(type='PackSegInputs'),
             ],
-            type='DRIVEDataset'),
+            type='ChaseDB1Dataset'),
         times=40000,
         type='RepeatDataset'),
     num_workers=4,
@@ -261,13 +264,13 @@ train_pipeline = [
             2.0,
         ),
         scale=(
-            584,
-            565,
+            960,
+            999,
         ),
         type='RandomResize'),
     dict(cat_max_ratio=0.75, crop_size=(
-        64,
-        64,
+        128,
+        128,
     ), type='RandomCrop'),
     dict(prob=0.5, type='RandomFlip'),
     dict(type='PhotoMetricDistortion'),
@@ -306,17 +309,17 @@ val_dataloader = dict(
         data_prefix=dict(
             img_path='images/validation',
             seg_map_path='annotations/validation'),
-        data_root='data/DRIVE',
+        data_root='data/CHASE_DB1',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
-                584,
-                565,
+                960,
+                999,
             ), type='Resize'),
             dict(type='LoadAnnotations'),
             dict(type='PackSegInputs'),
         ],
-        type='DRIVEDataset'),
+        type='ChaseDB1Dataset'),
     num_workers=4,
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
@@ -333,4 +336,4 @@ visualizer = dict(
     vis_backends=[
         dict(type='LocalVisBackend'),
     ])
-work_dir = './work_dirs/unet-s5-d16_deeplabv3_4xb4-40k_drive-64x64'
+work_dir = './work_dirs/unet-s5-d16_deeplabv3_4xb4-ce-1.0-dice-3.0-40k_chase-db1-128x128'

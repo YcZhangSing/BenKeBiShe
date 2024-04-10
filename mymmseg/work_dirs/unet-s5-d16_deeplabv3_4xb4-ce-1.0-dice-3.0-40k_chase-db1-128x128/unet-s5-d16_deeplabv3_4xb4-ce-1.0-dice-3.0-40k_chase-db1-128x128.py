@@ -1,40 +1,6 @@
-2024/04/10 15:30:40 - mmengine - INFO - 
-------------------------------------------------------------
-System environment:
-    sys.platform: darwin
-    Python: 3.8.19 (default, Mar 20 2024, 15:27:52) [Clang 14.0.6 ]
-    CUDA available: False
-    MUSA available: False
-    numpy_random_seed: 1303820242
-    GCC: Apple clang version 15.0.0 (clang-1500.3.9.4)
-    PyTorch: 2.1.2
-    PyTorch compiling details: PyTorch built with:
-  - GCC 4.2
-  - C++ Version: 201703
-  - clang 13.1.6
-  - LAPACK is enabled (usually provided by MKL)
-  - NNPACK is enabled
-  - CPU capability usage: NO AVX
-  - Build settings: BLAS_INFO=accelerate, BUILD_TYPE=Release, CXX_COMPILER=/Applications/Xcode_13.3.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++, CXX_FLAGS= -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_PYTORCH_METAL_EXPORT -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -DUSE_COREML_DELEGATE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=braced-scalar-init -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wvla-extension -Wnewline-eof -Winconsistent-missing-override -Winconsistent-missing-destructor-override -Wno-range-loop-analysis -Wno-pass-failed -Wsuggest-override -Wno-error=pedantic -Wno-error=old-style-cast -Wno-error=inconsistent-missing-override -Wno-error=inconsistent-missing-destructor-override -Wconstant-conversion -Wno-invalid-partial-specialization -Wno-unused-private-field -Wno-missing-braces -Wunused-lambda-capture -Qunused-arguments -fcolor-diagnostics -faligned-new -Wno-unused-but-set-variable -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -DUSE_MPS -Wno-unused-private-field -Wno-missing-braces, LAPACK_INFO=accelerate, TORCH_DISABLE_GPU_ASSERTS=OFF, TORCH_VERSION=2.1.2, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=OFF, USE_ROCM=OFF, 
-
-    TorchVision: 0.16.2
-    OpenCV: 4.9.0
-    MMEngine: 0.10.3
-
-Runtime environment:
-    cudnn_benchmark: True
-    mp_cfg: {'mp_start_method': 'fork', 'opencv_num_threads': 0}
-    dist_cfg: {'backend': 'nccl'}
-    seed: 1303820242
-    Distributed launcher: none
-    Distributed training: False
-    GPU number: 1
-------------------------------------------------------------
-
-2024/04/10 15:30:40 - mmengine - INFO - Config:
 crop_size = (
-    64,
-    64,
+    128,
+    128,
 )
 data_preprocessor = dict(
     bgr_to_rgb=True,
@@ -46,8 +12,8 @@ data_preprocessor = dict(
     pad_val=0,
     seg_pad_val=255,
     size=(
-        64,
-        64,
+        128,
+        128,
     ),
     std=[
         58.395,
@@ -55,8 +21,8 @@ data_preprocessor = dict(
         57.375,
     ],
     type='SegDataPreProcessor')
-data_root = 'data/DRIVE'
-dataset_type = 'DRIVEDataset'
+data_root = 'data/CHASE_DB1'
+dataset_type = 'ChaseDB1Dataset'
 default_hooks = dict(
     checkpoint=dict(by_epoch=False, interval=4000, type='CheckpointHook'),
     logger=dict(interval=50, log_metric_by_epoch=False, type='LoggerHook'),
@@ -78,8 +44,8 @@ img_ratios = [
     1.75,
 ]
 img_scale = (
-    584,
-    565,
+    960,
+    999,
 )
 launcher = 'none'
 load_from = None
@@ -159,8 +125,8 @@ model = dict(
         pad_val=0,
         seg_pad_val=255,
         size=(
-            64,
-            64,
+            128,
+            128,
         ),
         std=[
             58.395,
@@ -180,18 +146,21 @@ model = dict(
         dropout_ratio=0.1,
         in_channels=64,
         in_index=4,
-        loss_decode=dict(
-            loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=False),
+        loss_decode=[
+            dict(
+                loss_name='loss_ce', loss_weight=1.0, type='CrossEntropyLoss'),
+            dict(loss_name='loss_dice', loss_weight=3.0, type='DiceLoss'),
+        ],
         norm_cfg=dict(requires_grad=True, type='SyncBN'),
         num_classes=2,
         type='ASPPHead'),
     pretrained=None,
     test_cfg=dict(crop_size=(
-        64,
-        64,
+        128,
+        128,
     ), mode='slide', stride=(
-        42,
-        42,
+        85,
+        85,
     )),
     train_cfg=dict(),
     type='EncoderDecoder')
@@ -218,17 +187,17 @@ test_dataloader = dict(
         data_prefix=dict(
             img_path='images/validation',
             seg_map_path='annotations/validation'),
-        data_root='data/DRIVE',
+        data_root='data/CHASE_DB1',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
-                584,
-                565,
+                960,
+                999,
             ), type='Resize'),
             dict(type='LoadAnnotations'),
             dict(type='PackSegInputs'),
         ],
-        type='DRIVEDataset'),
+        type='ChaseDB1Dataset'),
     num_workers=4,
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
@@ -239,8 +208,8 @@ test_evaluator = dict(
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(keep_ratio=True, scale=(
-        584,
-        565,
+        960,
+        999,
     ), type='Resize'),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs'),
@@ -253,7 +222,7 @@ train_dataloader = dict(
             data_prefix=dict(
                 img_path='images/training',
                 seg_map_path='annotations/training'),
-            data_root='data/DRIVE',
+            data_root='data/CHASE_DB1',
             pipeline=[
                 dict(type='LoadImageFromFile'),
                 dict(type='LoadAnnotations'),
@@ -264,22 +233,22 @@ train_dataloader = dict(
                         2.0,
                     ),
                     scale=(
-                        584,
-                        565,
+                        960,
+                        999,
                     ),
                     type='RandomResize'),
                 dict(
                     cat_max_ratio=0.75,
                     crop_size=(
-                        64,
-                        64,
+                        128,
+                        128,
                     ),
                     type='RandomCrop'),
                 dict(prob=0.5, type='RandomFlip'),
                 dict(type='PhotoMetricDistortion'),
                 dict(type='PackSegInputs'),
             ],
-            type='DRIVEDataset'),
+            type='ChaseDB1Dataset'),
         times=40000,
         type='RepeatDataset'),
     num_workers=4,
@@ -295,13 +264,13 @@ train_pipeline = [
             2.0,
         ),
         scale=(
-            584,
-            565,
+            960,
+            999,
         ),
         type='RandomResize'),
     dict(cat_max_ratio=0.75, crop_size=(
-        64,
-        64,
+        128,
+        128,
     ), type='RandomCrop'),
     dict(prob=0.5, type='RandomFlip'),
     dict(type='PhotoMetricDistortion'),
@@ -340,17 +309,17 @@ val_dataloader = dict(
         data_prefix=dict(
             img_path='images/validation',
             seg_map_path='annotations/validation'),
-        data_root='data/DRIVE',
+        data_root='data/CHASE_DB1',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
-                584,
-                565,
+                960,
+                999,
             ), type='Resize'),
             dict(type='LoadAnnotations'),
             dict(type='PackSegInputs'),
         ],
-        type='DRIVEDataset'),
+        type='ChaseDB1Dataset'),
     num_workers=4,
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
@@ -367,91 +336,4 @@ visualizer = dict(
     vis_backends=[
         dict(type='LocalVisBackend'),
     ])
-work_dir = './work_dirs/unet-s5-d16_deeplabv3_4xb4-40k_drive-64x64'
-
-2024/04/10 15:30:42 - mmengine - INFO - Distributed training is not used, all SyncBatchNorm (SyncBN) layers in the model will be automatically reverted to BatchNormXd layers if they are used.
-2024/04/10 15:30:42 - mmengine - INFO - Hooks will be executed in the following order:
-before_run:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(BELOW_NORMAL) LoggerHook                         
- -------------------- 
-before_train:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
-(VERY_LOW    ) CheckpointHook                     
- -------------------- 
-before_train_epoch:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
-(NORMAL      ) DistSamplerSeedHook                
- -------------------- 
-before_train_iter:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
- -------------------- 
-after_train_iter:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
-(NORMAL      ) SegVisualizationHook               
-(BELOW_NORMAL) LoggerHook                         
-(LOW         ) ParamSchedulerHook                 
-(VERY_LOW    ) CheckpointHook                     
- -------------------- 
-after_train_epoch:
-(NORMAL      ) IterTimerHook                      
-(LOW         ) ParamSchedulerHook                 
-(VERY_LOW    ) CheckpointHook                     
- -------------------- 
-before_val:
-(VERY_HIGH   ) RuntimeInfoHook                    
- -------------------- 
-before_val_epoch:
-(NORMAL      ) IterTimerHook                      
- -------------------- 
-before_val_iter:
-(NORMAL      ) IterTimerHook                      
- -------------------- 
-after_val_iter:
-(NORMAL      ) IterTimerHook                      
-(NORMAL      ) SegVisualizationHook               
-(BELOW_NORMAL) LoggerHook                         
- -------------------- 
-after_val_epoch:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
-(BELOW_NORMAL) LoggerHook                         
-(LOW         ) ParamSchedulerHook                 
-(VERY_LOW    ) CheckpointHook                     
- -------------------- 
-after_val:
-(VERY_HIGH   ) RuntimeInfoHook                    
- -------------------- 
-after_train:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(VERY_LOW    ) CheckpointHook                     
- -------------------- 
-before_test:
-(VERY_HIGH   ) RuntimeInfoHook                    
- -------------------- 
-before_test_epoch:
-(NORMAL      ) IterTimerHook                      
- -------------------- 
-before_test_iter:
-(NORMAL      ) IterTimerHook                      
- -------------------- 
-after_test_iter:
-(NORMAL      ) IterTimerHook                      
-(NORMAL      ) SegVisualizationHook               
-(BELOW_NORMAL) LoggerHook                         
- -------------------- 
-after_test_epoch:
-(VERY_HIGH   ) RuntimeInfoHook                    
-(NORMAL      ) IterTimerHook                      
-(BELOW_NORMAL) LoggerHook                         
- -------------------- 
-after_test:
-(VERY_HIGH   ) RuntimeInfoHook                    
- -------------------- 
-after_run:
-(BELOW_NORMAL) LoggerHook                         
- -------------------- 
+work_dir = './work_dirs/unet-s5-d16_deeplabv3_4xb4-ce-1.0-dice-3.0-40k_chase-db1-128x128'
