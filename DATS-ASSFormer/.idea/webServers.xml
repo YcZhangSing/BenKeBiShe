@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9c64459b-7fd5-49bf-aee6-b5568a329ead" name="机房服务器3060">
+        <fileTransfer accessType="SFTP" sshConfigId="2f58f8e0-b231-4e01-92eb-cd7b3c00bace" sshConfig="机房服务器3060">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

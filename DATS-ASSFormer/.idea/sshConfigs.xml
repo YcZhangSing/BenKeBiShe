@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:300}" id="2f58f8e0-b231-4e01-92eb-cd7b3c00bace" customName="机房服务器3060" nameFormat="CUSTOM" useOpenSSHConfig="true">
+        <option name="customName" value="机房服务器3060" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

@@ -1,0 +1,5 @@
+cudatest 是从 py1.7-wzc 直接clone过来的
+
+Mmcv137 是按照 requorements.txt 一步步装的环境，没有问题
+
+mmcv-zyc 是从 py1.7-wzc clone过来 但是 重新装了一下pytorch
